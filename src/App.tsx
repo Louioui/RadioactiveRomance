@@ -178,7 +178,9 @@ export default function App() {
         </section>
       </div>
       <footer className="footer">
-        <span>© {new Date().getFullYear()} Radioactive Romance</span>
+        <span>
+          © {new Date().getFullYear()} Radioactive Romance. All rights reserved.
+        </span>
         <div>
           <button onClick={() => setOverlay("privacy")}>Privacy</button>
           <button onClick={() => setOverlay("terms")}>Terms</button>

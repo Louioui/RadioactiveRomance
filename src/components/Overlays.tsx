@@ -60,9 +60,9 @@ export function Overlays({
     return (
       <Modal title="The fine print." onClose={onClose}>
         <p>
-          Radioactive Romance is a fictional band and this site is an
-          interactive demo. The player streams the release tracks “Standing
-          Through It All” and “Bleeding Out Empty.”
+          This site is an interactive release preview for Radioactive Romance.
+          The player streams the release tracks “Standing Through It All” and
+          “Bleeding Out Empty.”
         </p>
         <p>
           Demo downloads are free. No payment or purchase is made. The Origin
@@ -71,8 +71,12 @@ export function Overlays({
           audio files are included in it.
         </p>
         <p>
-          Artwork and audio are provided for personal preview. Commercial
-          release terms will be published when an actual release is offered.
+          All music, recordings and artwork on this site are owned by
+          Radioactive Romance. All rights reserved. They are provided for
+          personal listening and viewing on this site only and may not be
+          copied, redistributed or used commercially without the band’s
+          permission. Commercial release terms will be published when the
+          release goes on sale.
         </p>
       </Modal>
     );
