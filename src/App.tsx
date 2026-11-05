@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ArrowDown,
   ArrowDownToLine,
   ArrowUpRight,
-  RotateCcw,
   Volume2,
   VolumeX,
 } from "lucide-react";
@@ -17,7 +15,6 @@ export default function App() {
   const engine = useAudioEngine();
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [clicks, setClicks] = useState(0);
-  const [orbit, setOrbit] = useState(0);
   const [ready, setReady] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(
@@ -36,20 +33,6 @@ export default function App() {
     media.addEventListener("change", handler);
     return () => media.removeEventListener("change", handler);
   }, []);
-  useEffect(() => {
-    const el = stage.current;
-    if (!el) return;
-    const wheel = (event: WheelEvent) => {
-      if (overlay || window.innerWidth < 700 || reducedMotion || event.ctrlKey)
-        return;
-      event.preventDefault();
-      setOrbit((value) =>
-        Math.min(1, Math.max(0, value + event.deltaY * 0.0008)),
-      );
-    };
-    el.addEventListener("wheel", wheel, { passive: false });
-    return () => el.removeEventListener("wheel", wheel);
-  }, [overlay, reducedMotion]);
   useEffect(() => {
     if (unlocked) document.body.style.cursor = "";
   }, [unlocked]);
@@ -118,7 +101,6 @@ export default function App() {
             hoveredStoreTier={hovered ? "origin" : "none"}
             secretUnlocked={unlocked}
             onHeartClick={heartClick}
-            orbit={orbit}
             reducedMotion={reducedMotion}
             onReady={onReady}
           />
@@ -195,27 +177,6 @@ export default function App() {
       </div>
       <footer className="footer">
         <span>© {new Date().getFullYear()} Radioactive Romance</span>
-        <div className="orbit-controls">
-          {orbit > 0.02 ? (
-            <button onClick={() => setOrbit(0)}>
-              <RotateCcw size={12} /> Return to the surface
-            </button>
-          ) : (
-            <label htmlFor="orbit">
-              Scroll to explore <ArrowDown size={13} />
-            </label>
-          )}
-          <input
-            id="orbit"
-            aria-label="Explore the doll from front to back"
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={orbit}
-            onChange={(e) => setOrbit(Number(e.target.value))}
-          />
-        </div>
         <div>
           <button onClick={() => setOverlay("privacy")}>Privacy</button>
           <button onClick={() => setOverlay("terms")}>Terms</button>

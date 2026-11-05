@@ -19,7 +19,6 @@ export interface InteractiveDollProps {
   hoveredStoreTier?: "none" | "origin" | "matrix" | "aura";
   secretUnlocked: boolean;
   onHeartClick: () => void;
-  orbit: number;
   reducedMotion: boolean;
   onReady: () => void;
 }
@@ -72,8 +71,10 @@ function Doll(props: InteractiveDollProps) {
   const light = useRef<THREE.PointLight>(null);
   const rim = useRef<THREE.DirectionalLight>(null);
   const cavityLight = useRef<THREE.PointLight>(null);
-  const cameraAngle = useRef(0);
+  const heartGroup = useRef<THREE.Group>(null);
   const tracking = useMemo(() => ({ value: new THREE.Vector2() }), []);
+  const roll = useMemo(() => ({ value: 0 }), []);
+  const breath = useMemo(() => ({ value: 0 }), []);
   const pulse = useMemo(() => ({ value: 0.5 }), []);
   const broken = useMemo(() => ({ value: 0 }), []);
   const beat = useMemo(() => ({ value: 0 }), []);
@@ -170,22 +171,31 @@ function Doll(props: InteractiveDollProps) {
       material.metalness = 0.04;
       material.onBeforeCompile = (shader) => {
         shader.uniforms.uLook = tracking;
+        shader.uniforms.uRoll = roll;
+        shader.uniforms.uBreath = breath;
         shader.uniforms.uPulse = pulse;
         shader.uniforms.uBroken = broken;
         shader.vertexShader =
-          "uniform vec2 uLook; varying vec3 vDollPosition;\n" +
+          "uniform vec2 uLook; uniform float uRoll; uniform float uBreath; varying vec3 vDollPosition;\n" +
           shader.vertexShader;
         shader.vertexShader = shader.vertexShader.replace(
           "#include <begin_vertex>",
           `#include <begin_vertex>
           vDollPosition = position;
+          // breathing: the torso swells gently, legs and head stay put
+          float chest = smoothstep(-1.25, -0.75, position.y) * (1.0 - smoothstep(0.15, 0.5, position.y));
+          transformed.xz *= 1.0 + uBreath * chest;
+          transformed.y += uBreath * chest * 0.6 * (position.y + 1.0) * 0.25;
+          // head: look (yaw/pitch) + tired tilt (roll) about the neck
           float influence = smoothstep(0.35, 0.85, position.y);
           float a = uLook.x * influence;
           float b = uLook.y * influence;
+          float c = uRoll * influence;
           vec3 pivot = vec3(0.0, 0.45, 0.0);
           vec3 p = transformed - pivot;
           p.xz = mat2(cos(a), -sin(a), sin(a), cos(a)) * p.xz;
           p.yz = mat2(cos(b), -sin(b), sin(b), cos(b)) * p.yz;
+          p.xy = mat2(cos(c), -sin(c), sin(c), cos(c)) * p.xy;
           transformed = p + pivot;`,
         );
         shader.fragmentShader =
@@ -203,7 +213,7 @@ function Doll(props: InteractiveDollProps) {
       child.material = material;
     });
     return copy;
-  }, [scene, heartGltf, tracking, pulse, broken]);
+  }, [scene, heartGltf, tracking, roll, breath, pulse, broken]);
   useEffect(() => {
     props.onReady();
     return () => {
@@ -274,20 +284,50 @@ function Doll(props: InteractiveDollProps) {
       cavityLight.current.intensity = props.secretUnlocked
         ? 0.25
         : 0.4 + beat.value * 3;
+    // ---- idle life: small, slow, layered movements (no scrolling needed)
+    const still = props.reducedMotion;
+    const sigh = Math.pow(Math.max(0, Math.sin(t * 0.21)), 24); // rare deep breath
+    breath.value = still
+      ? 0
+      : (Math.sin(t * 1.25) * 0.5 + 0.5) * 0.018 + sigh * 0.025;
+    // slow wandering gaze + occasional glance to the side
+    const glance = Math.sin(t * 0.13) > 0.85 ? Math.sin(t * 0.13 * 3) * 0.18 : 0;
+    const idleYaw = still
+      ? 0
+      : Math.sin(t * 0.23) * 0.1 + Math.sin(t * 0.61) * 0.03 + glance;
+    // weary nod; on the music it bobs with the kick drum
+    const idlePitch = still
+      ? 0
+      : Math.sin(t * 0.37) * 0.035 +
+        sigh * 0.06 +
+        (props.playing ? -beat.value * 0.06 : 0);
     tracking.value.x = THREE.MathUtils.damp(
       tracking.value.x,
-      props.reducedMotion ? 0 : state.pointer.x * 0.16,
+      (still ? 0 : state.pointer.x * 0.16) + idleYaw,
       4,
       dt,
     );
     tracking.value.y = THREE.MathUtils.damp(
       tracking.value.y,
-      props.reducedMotion ? 0 : -state.pointer.y * 0.09,
-      4,
+      (still ? 0 : -state.pointer.y * 0.09) + idlePitch,
+      props.playing ? 10 : 4,
       dt,
     );
-    if (group.current && !props.reducedMotion)
-      group.current.position.y = Math.sin(t * 0.8) * 0.025;
+    // the head rests heavy on its hand, tilting side to side
+    roll.value = still
+      ? 0
+      : Math.sin(t * 0.43) * 0.05 + Math.sin(t * 0.17) * 0.03 - sigh * 0.04;
+    if (group.current && !still) {
+      group.current.position.y = Math.sin(t * 0.8) * 0.02 + sigh * 0.02;
+      group.current.rotation.y = Math.sin(t * 0.19) * 0.09;
+      group.current.rotation.z = Math.sin(t * 0.47) * 0.012;
+      group.current.rotation.x = Math.sin(t * 0.31) * 0.01;
+    }
+    // keep the detached heart inside the breathing chest
+    if (heartGroup.current) {
+      const b = 1 + breath.value;
+      heartGroup.current.position.set(HEART_POS.x * b, HEART_POS.y, HEART_POS.z * b);
+    }
     const premium =
       props.playing ||
       props.hoveredStoreTier === "matrix" ||
@@ -299,17 +339,13 @@ function Doll(props: InteractiveDollProps) {
         3,
         dt,
       );
-    cameraAngle.current = THREE.MathUtils.damp(
-      cameraAngle.current,
-      props.orbit * Math.PI,
-      5,
-      dt,
-    );
     const radius = state.size.width / state.size.height < 0.7 ? 9.8 : 8.3;
+    // a slow, barely-there camera drift keeps the scene alive
+    const drift = still ? 0 : 1;
     state.camera.position.set(
-      Math.sin(cameraAngle.current) * radius,
-      0.05,
-      Math.cos(cameraAngle.current) * radius,
+      Math.sin(t * 0.11) * 0.25 * drift,
+      0.05 + Math.sin(t * 0.17) * 0.08 * drift,
+      radius,
     );
     state.camera.lookAt(0, 0, 0);
   });
@@ -357,7 +393,7 @@ function Doll(props: InteractiveDollProps) {
           decay={2}
         />
         {heartParts.current && (
-          <group position={HEART_POS}>
+          <group ref={heartGroup} position={HEART_POS}>
             <AnatomicalHeart
               geometry={heartParts.current.geometry}
               map={heartParts.current.map}
