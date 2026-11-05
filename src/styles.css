@@ -1120,3 +1120,13 @@ input[type="range"] {
     bottom: 6px;
   }
 }
+
+/* The heart hint is hidden on screen but stays a real button: keyboard and
+   screen-reader users can still reach the three-beat secret, and it shows
+   itself while it has keyboard focus. */
+.heart-hint:not(:focus-within) {
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
