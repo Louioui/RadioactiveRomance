@@ -109,27 +109,27 @@ export function Overlays({
       ) : (
         <>
           <p>
-            Step inside the demo. Download the original 32-second preview
-            soundscape and the graveyard artwork. The full band recording isn’t
-            part of this preview.
+            The song is loaded into the player above. Add a hosted checkout URL
+            in <code>VITE_CHECKOUT_URL</code> when you are ready to sell the
+            lossless release.
           </p>
           <div className="download-spec">
-            <span>PREVIEW WAV + ARTWORK</span>
-            <span>FREE DEMO</span>
+            <span>MP3 + LOSSLESS WAV</span>
+            <span>CHECKOUT PENDING</span>
           </div>
           <a
             className="primary-button solid"
             href="/assets/origin-demo.zip"
-            download="Radioactive-Romance-Origin-Demo.zip"
+            download="Radioactive-Romance-Origin-Artwork.zip"
             onClick={() => setDownloaded(true)}
           >
-            {downloaded ? "Download again" : "Download the demo"}{" "}
+            {downloaded ? "Download artwork again" : "Download artwork demo"}{" "}
             {downloaded ? <Check size={18} /> : <ArrowDownToLine size={18} />}
           </a>
           <p className="small-note" role="status">
             {downloaded
               ? "Download requested. Stay a little longer. There’s a secret in the heart."
-              : "No payment. No email. Just the signal."}
+              : "No payment is taken until checkout is connected."}
           </p>
         </>
       )}

@@ -2,8 +2,9 @@
 export const release = {
   title: "Candlelit Cage",
   artist: "Radioactive Romance",
-  audioUrl: import.meta.env.VITE_AUDIO_URL || "/assets/signal-preview.wav",
-  isPreview: !import.meta.env.VITE_AUDIO_URL,
+  audioUrl:
+    import.meta.env.VITE_AUDIO_URL || "/assets/Standing_Through_It_All.mp3",
+  isPreview: false,
   checkoutUrl: import.meta.env.VITE_CHECKOUT_URL || "",
   secretUrl:
     import.meta.env.VITE_SECRET_DOWNLOAD_URL ||

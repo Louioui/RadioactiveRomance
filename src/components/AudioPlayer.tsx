@@ -48,7 +48,9 @@ export function AudioPlayer({ engine }: { engine: AudioEngine }) {
         <div>
           <h2>Listen to the signal</h2>
           <p>
-            {release.isPreview ? "Preview soundscape" : release.title}{" "}
+            {release.isPreview
+              ? "Preview soundscape"
+              : "Standing Through It All"}{" "}
             <span>
               · {formatTime(engine.time)} / {formatTime(engine.duration)}
             </span>

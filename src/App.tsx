@@ -157,7 +157,7 @@ export default function App() {
           <p>
             {unlocked
               ? "You found what was hiding underneath."
-              : "One track. Every exposed nerve."}
+              : "Standing Through It All · one exposed nerve."}
           </p>
           {unlocked ? (
             <a
