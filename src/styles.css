@@ -228,22 +228,6 @@ input[type="range"] {
   inset: 7% 0 -17%;
   pointer-events: auto;
 }
-.side-note {
-  position: absolute;
-  top: 51%;
-  font-size: 11px;
-  letter-spacing: 2px;
-  line-height: 1.7;
-  text-transform: uppercase;
-  z-index: 3;
-  pointer-events: none;
-}
-.right-note {
-  right: 5.6%;
-  text-align: center;
-  font-size: 10px;
-  letter-spacing: 1.4px;
-}
 .heart-hint {
   position: absolute;
   bottom: -129px;
@@ -767,12 +751,6 @@ input[type="range"] {
   .heart-hint button {
     font-size: 7px;
   }
-  .side-note {
-    font-size: 9px;
-  }
-  .right-note {
-    right: 0;
-  }
   .footer > span {
     font-size: 8px;
   }
@@ -822,16 +800,6 @@ input[type="range"] {
   }
   .doll-stage {
     inset: 35px -50px -13px;
-  }
-  .side-note {
-    top: 52%;
-    font-size: 8px;
-    letter-spacing: 1px;
-  }
-  .right-note {
-    right: 20px;
-    font-size: 7px;
-    writing-mode: vertical-rl;
   }
   .heart-hint {
     bottom: 0;
@@ -1030,13 +998,6 @@ input[type="range"] {
   .footer button {
     font-size: 10px;
   }
-  .side-note {
-    font-size: 12px;
-    top: 55%;
-  }
-  .right-note {
-    font-size: 11px;
-  }
 }
 @media (max-height: 800px) and (min-width: 701px) {
   .header {
@@ -1086,12 +1047,6 @@ input[type="range"] {
   .footer button {
     font-size: 9px;
   }
-  .side-note {
-    font-size: 10px;
-  }
-  .right-note {
-    font-size: 9px;
-  }
 }
 @media (max-width: 1000px) and (min-width: 701px) {
   .audio-player {
@@ -1108,9 +1063,6 @@ input[type="range"] {
   }
   .audio-player p {
     font-size: 8px;
-  }
-  .side-note {
-    font-size: 9px;
   }
   .heart-hint button {
     font-size: 7px;

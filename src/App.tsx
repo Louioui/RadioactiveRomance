@@ -88,10 +88,6 @@ export default function App() {
         aria-label={`${engine.track?.title ?? release.title} interactive release artwork`}
       >
         <ReleaseTitle title={engine.track?.title ?? release.title} />
-        <div className="side-note right-note">
-          Post-hardcore /<br />
-          Raw emotion
-        </div>
         <div className="doll-stage">
           <InteractiveDoll
             analysis={engine.analysis}
