@@ -4,6 +4,14 @@ export const release = {
   artist: "Radioactive Romance",
   audioUrl:
     import.meta.env.VITE_AUDIO_URL || "/assets/Standing_Through_It_All.mp3",
+  tracks: [
+    {
+      title: "Standing Through It All",
+      audioUrl:
+        import.meta.env.VITE_AUDIO_URL || "/assets/Standing_Through_It_All.mp3",
+    },
+    { title: "Bleeding Out Empty", audioUrl: "/assets/Bleeding_Out_Empty.mp3" },
+  ],
   isPreview: false,
   checkoutUrl: import.meta.env.VITE_CHECKOUT_URL || "",
   secretUrl:

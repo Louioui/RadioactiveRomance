@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { ChevronDown, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import type { AudioEngine } from "../audio/useAudioEngine";
 import { release } from "../config/release";
 export const formatTime = (value: number) =>
@@ -48,15 +48,28 @@ export function AudioPlayer({ engine }: { engine: AudioEngine }) {
         <div>
           <h2>Listen to the signal</h2>
           <p>
-            {release.isPreview
-              ? "Preview soundscape"
-              : "Standing Through It All"}{" "}
+            {engine.track.title}{" "}
             <span>
               · {formatTime(engine.time)} / {formatTime(engine.duration)}
             </span>
           </p>
         </div>
       </div>
+      <label className="track-picker">
+        <span>Release tracks</span>
+        <ChevronDown size={13} />
+        <select
+          aria-label="Choose release track"
+          value={engine.trackIndex}
+          onChange={(e) => void engine.selectTrack(Number(e.target.value))}
+        >
+          {release.tracks.map((track, index) => (
+            <option value={index} key={track.title}>
+              {track.title}
+            </option>
+          ))}
+        </select>
+      </label>
       <div className="player-bottom">
         <div className="waveform">
           <canvas ref={canvas} width="560" height="70" aria-hidden="true" />

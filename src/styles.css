@@ -339,6 +339,36 @@ input[type="range"] {
   font-weight: 400;
   margin: 0 0 5px;
 }
+.track-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  color: #9695c8;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  width: max-content;
+}
+.track-picker select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #d8d7e6;
+  padding: 3px 18px 3px 0;
+  font: inherit;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}
+.track-picker select:focus {
+  outline: 1px solid var(--periwinkle);
+  outline-offset: 3px;
+}
+.track-picker option {
+  background: #101410;
+  color: #eeeadd;
+}
 .audio-player p {
   font-size: 9px;
   margin: 0;

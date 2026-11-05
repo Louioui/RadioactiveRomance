@@ -21,6 +21,7 @@ export function useAudioEngine() {
   const [volume, setVolume] = useState(0.65);
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState("");
+  const [trackIndex, setTrackIndex] = useState(0);
   useEffect(() => {
     const element = new Audio(release.audioUrl);
     element.crossOrigin = "anonymous";
@@ -62,6 +63,27 @@ export function useAudioEngine() {
       audio.current = null;
     };
   }, []);
+  const selectTrack = useCallback(
+    async (index: number) => {
+      const next = release.tracks[index];
+      const element = audio.current;
+      if (!next || !element || index === trackIndex) return;
+      const wasPlaying = !element.paused;
+      setTrackIndex(index);
+      element.src = next.audioUrl;
+      element.currentTime = 0;
+      setTime(0);
+      setDuration(0);
+      if (wasPlaying) {
+        try {
+          await element.play();
+        } catch {
+          setError("Audio could not start. Press play to retry.");
+        }
+      }
+    },
+    [trackIndex],
+  );
   useEffect(() => {
     if (gain.current && context.current)
       gain.current.gain.setTargetAtTime(
@@ -116,6 +138,9 @@ export function useAudioEngine() {
     seek,
     setVolume,
     setMuted,
+    trackIndex,
+    track: release.tracks[trackIndex],
+    selectTrack,
   };
 }
 export type AudioEngine = ReturnType<typeof useAudioEngine>;

@@ -29,7 +29,7 @@ Deploy the generated `dist/` directory to a static host. All fonts, audio, textu
 
 ## What's real and what's demo
 
-The 3D rendering, Web Audio analysis, controls, orbit, secret interaction, dialogs, and downloads are functional. The player now loads the supplied **Standing Through It All** MP3. The visible MP3/WAV product specification describes the planned paid release; the demo ZIP contains artwork and a README only. No Stripe, Supabase, email delivery, paid entitlement, or live purchase flow is connected.
+The 3D rendering, Web Audio analysis, controls, orbit, secret interaction, dialogs, and downloads are functional. The player now loads the supplied **Standing Through It All** MP3 and **Bleeding Out Empty** MP3. The release picker switches tracks without rebuilding the audio graph, and both tracks drive the same Web Audio reactive heart. The visible MP3/WAV product specification describes the planned paid release; the demo ZIP contains artwork and a README only. No Stripe, Supabase, email delivery, paid entitlement, or live purchase flow is connected.
 
 To substitute release content, copy `.env.example` to `.env.local` and set public preview and bonus URLs. `VITE_CHECKOUT_URL` can link to an existing hosted checkout, but adding that link alone does **not** implement secure paid-file delivery. Never put paid masters or secret credentials in `public/` or `VITE_` variables. Remote audio must allow cross-origin requests for Web Audio analysis.
 
