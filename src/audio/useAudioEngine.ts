@@ -5,6 +5,9 @@ export interface AudioAnalysis {
   analyser: AnalyserNode | null;
   bins: Uint8Array<ArrayBuffer>;
   bass: number;
+  /** Unsmoothed, high-resolution analyser used only for kick detection. */
+  beatAnalyser: AnalyserNode | null;
+  beatBins: Float32Array<ArrayBuffer>;
 }
 export function useAudioEngine() {
   const audio = useRef<HTMLAudioElement | null>(null);
@@ -14,6 +17,8 @@ export function useAudioEngine() {
     analyser: null,
     bins: new Uint8Array(128),
     bass: 0,
+    beatAnalyser: null,
+    beatBins: new Float32Array(1024),
   });
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -60,6 +65,7 @@ export function useAudioEngine() {
       context.current = null;
       gain.current = null;
       analysis.current.analyser = null;
+      analysis.current.beatAnalyser = null;
       audio.current = null;
     };
   }, []);
@@ -106,7 +112,14 @@ export function useAudioEngine() {
         const level = ctx.createGain();
         level.gain.value = muted ? 0 : volume;
         gain.current = level;
-        ctx.createMediaElementSource(element).connect(analyser);
+        const source = ctx.createMediaElementSource(element);
+        source.connect(analyser);
+        // kick detector: ~21 Hz bins, no smoothing so drum transients survive
+        const beatAnalyser = ctx.createAnalyser();
+        beatAnalyser.fftSize = 2048;
+        beatAnalyser.smoothingTimeConstant = 0;
+        source.connect(beatAnalyser);
+        analysis.current.beatAnalyser = beatAnalyser;
         analyser.connect(level);
         level.connect(ctx.destination);
         analysis.current.analyser = analyser;

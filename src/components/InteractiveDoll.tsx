@@ -83,7 +83,13 @@ function Doll(props: InteractiveDollProps) {
     normalMap: THREE.Texture | null;
   } | null>(null);
   const glow = useMemo(() => ({ value: 0.6 }), []);
-  const onset = useRef({ avg: 0, since: 1, burst: 0 });
+  const onset = useRef({
+    prev: new Float32Array(1024),
+    mean: 0,
+    varc: 0,
+    since: 1,
+    burst: 0,
+  });
   const model = useMemo(() => {
     scene.updateMatrixWorld(true);
     const copy = new THREE.Group();
@@ -212,36 +218,51 @@ function Doll(props: InteractiveDollProps) {
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.05),
       t = state.clock.elapsedTime;
-    const { analyser, bins } = props.analysis.current;
-    let bass = 0;
-    if (analyser && props.playing) {
-      analyser.getByteFrequencyData(bins);
-      for (let i = 1; i < 5; i++) bass += bins[i];
-      bass /= 1020;
-    }
-    props.analysis.current.bass = THREE.MathUtils.damp(
-      props.analysis.current.bass,
-      bass,
-      12,
-      dt,
-    );
-    const energy = props.analysis.current.bass;
-    // kick / onset detection: a jump above the running average fires a beat
+    const audio = props.analysis.current;
     const o = onset.current;
     o.since += dt;
-    if (props.playing && energy - o.avg > 0.06 && o.since > 0.2) {
-      o.burst = 1;
-      o.since = 0;
+    let energy = 0;
+    if (audio.beatAnalyser && props.playing) {
+      const an = audio.beatAnalyser;
+      const bins = audio.beatBins;
+      an.getFloatFrequencyData(bins);
+      // kick band ~40–150 Hz. Spectral flux = how much louder it just got.
+      const hz = an.context.sampleRate / an.fftSize;
+      const lo = Math.max(1, Math.floor(40 / hz));
+      const hi = Math.ceil(150 / hz);
+      let flux = 0;
+      let level = 0;
+      for (let i = lo; i <= hi; i++) {
+        const v = Math.max(0, (bins[i] + 100) / 100); // dB -> 0..1
+        level += v;
+        flux += Math.max(0, v - o.prev[i]);
+        o.prev[i] = v;
+      }
+      const n = hi - lo + 1;
+      level /= n;
+      flux /= n;
+      energy = level;
+      // adaptive threshold: mean + 1.5σ of the last ~1.5 s of flux
+      o.mean = THREE.MathUtils.damp(o.mean, flux, 1.5, dt);
+      const dev = (flux - o.mean) ** 2;
+      o.varc = THREE.MathUtils.damp(o.varc, dev, 1.5, dt);
+      const threshold = o.mean + 1.5 * Math.sqrt(o.varc) + 0.004;
+      if (flux > threshold && o.since > 0.13) {
+        o.burst = Math.min(1, 0.65 + (flux - threshold) * 12);
+        o.since = 0;
+      }
+    } else {
+      o.prev.fill(0);
     }
-    o.avg = THREE.MathUtils.damp(o.avg, energy, 3, dt);
-    o.burst *= Math.exp(-dt * 7);
+    audio.bass = THREE.MathUtils.damp(audio.bass, energy, 12, dt);
+    o.burst *= Math.exp(-dt * 9);
     // resting "lub-dub" at ~66 bpm when the music is paused
     const phase = (t * 1.1) % 1;
     const lubDub =
       Math.exp(-((phase - 0.05) ** 2) / 0.002) +
       0.6 * Math.exp(-((phase - 0.22) ** 2) / 0.002);
     const idle = props.reducedMotion ? 0 : props.playing ? 0 : lubDub;
-    beat.value = Math.min(1, Math.max(o.burst, energy * 0.55, idle * 0.7));
+    beat.value = Math.min(1, Math.max(o.burst, idle * 0.7));
     glow.value = props.secretUnlocked ? 0 : 0.35 + beat.value * 1.4;
     pulse.value = 0.35 + beat.value * 1.3;
     broken.value = props.secretUnlocked ? 1 : 0;
