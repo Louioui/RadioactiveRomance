@@ -106,13 +106,14 @@ input[type="range"] {
   background:
     linear-gradient(
       90deg,
-      rgba(7, 10, 9, 0.54),
-      rgba(7, 10, 9, 0.91) 32%,
-      rgba(7, 10, 9, 0.94) 67%,
-      rgba(7, 10, 9, 0.68)
+      rgba(7, 10, 9, 0.3),
+      rgba(7, 10, 9, 0.6) 32%,
+      rgba(7, 10, 9, 0.64) 67%,
+      rgba(7, 10, 9, 0.4)
     ),
     url("/assets/background.webp") center 45% / cover;
-  opacity: 0.8;
+  opacity: 0.95;
+  filter: brightness(1.12) saturate(1.1);
 }
 .backdrop:after {
   content: "";
@@ -120,9 +121,9 @@ input[type="range"] {
   inset: 0;
   background: linear-gradient(
     0deg,
-    #090b0a 2%,
-    transparent 32%,
-    rgba(9, 11, 10, 0.25) 85%,
+    #090b0a 1%,
+    transparent 26%,
+    rgba(9, 11, 10, 0.12) 85%,
     #090b0a
   );
 }
