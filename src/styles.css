@@ -238,17 +238,6 @@ input[type="range"] {
   z-index: 3;
   pointer-events: none;
 }
-.left-note {
-  left: 6.3%;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-.left-note i {
-  height: 1px;
-  width: 40px;
-  background: var(--line);
-}
 .right-note {
   right: 5.6%;
   text-align: center;
@@ -781,14 +770,8 @@ input[type="range"] {
   .side-note {
     font-size: 9px;
   }
-  .left-note i {
-    display: none;
-  }
   .right-note {
     right: 0;
-  }
-  .left-note {
-    left: 0;
   }
   .footer > span {
     font-size: 8px;
@@ -844,14 +827,6 @@ input[type="range"] {
     top: 52%;
     font-size: 8px;
     letter-spacing: 1px;
-  }
-  .left-note {
-    left: 20px;
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-  }
-  .left-note i {
-    display: none;
   }
   .right-note {
     right: 20px;

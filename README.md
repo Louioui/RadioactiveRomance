@@ -24,7 +24,7 @@ Deploy the generated `dist/` directory to a static host. All fonts, audio, textu
 - **Watch the doll.** It breathes, tilts its heavy head, lets its gaze wander, and sways on its own. The supplied model is unrigged, so a vertex shader deforms the chest and head regions instead of inventing skeletal bones. **Move the pointer** and the head follows. All motion and per-kick flashes are turned down under `prefers-reduced-motion`.
 - **Click the exposed heart three times** to burst it into flesh chunks and green sparks, leaving an empty chest, and replace the Origin CTA with a free artwork download. The three-beat hint is an equivalent accessible button.
 - **Acquire Origin** opens the demo release dialog. Download a ZIP containing the Shattered Canvas artwork and a short README. There is no payment or email collection.
-- **The band** opens the fictional band's story and lineup. Privacy and terms describe actual demo behavior.
+- **The band** opens the band's story and lineup. Privacy and terms describe actual demo behavior.
 
 ## What's real and what's demo
 

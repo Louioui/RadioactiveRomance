@@ -38,7 +38,6 @@ export function Overlays({
             </div>
           ))}
         </div>
-        <p className="small-note">A fictional band. A very real feeling.</p>
       </Modal>
     );
   if (active === "privacy")
