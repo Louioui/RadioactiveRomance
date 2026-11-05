@@ -1202,3 +1202,30 @@ input[type="range"] {
     transform: translateX(-50%) scaleX(0.77);
   }
 }
+
+/* Song-driven title: every line is centred and squeezed by ReleaseTitle. */
+.release-title .title-line {
+  position: relative;
+  left: 50%;
+  width: max-content;
+  margin-top: 0;
+  white-space: nowrap;
+  transform-origin: center;
+  animation: title-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes title-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    letter-spacing: 0.04em;
+  }
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .release-title .title-line {
+    animation: none;
+  }
+}

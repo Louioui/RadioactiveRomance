@@ -9,6 +9,7 @@ import { InteractiveDoll } from "./components/InteractiveDoll";
 import { AudioPlayer } from "./components/AudioPlayer";
 import { Overlays, type Overlay } from "./components/Overlays";
 import { useAudioEngine } from "./audio/useAudioEngine";
+import { ReleaseTitle } from "./components/ReleaseTitle";
 import { release } from "./config/release";
 
 export default function App() {
@@ -36,6 +37,10 @@ export default function App() {
   useEffect(() => {
     if (unlocked) document.body.style.cursor = "";
   }, [unlocked]);
+  const songTitle = engine.track?.title ?? release.title;
+  useEffect(() => {
+    document.title = `${songTitle} — Radioactive Romance`;
+  }, [songTitle]);
   return (
     <main
       ref={stage}
@@ -80,12 +85,9 @@ export default function App() {
       </header>
       <section
         className="visual-stage"
-        aria-label="Candlelit Cage interactive release artwork"
+        aria-label={`${engine.track?.title ?? release.title} interactive release artwork`}
       >
-        <h1 className="release-title">
-          <span>Candlelit</span>
-          <span>Cage</span>
-        </h1>
+        <ReleaseTitle title={engine.track?.title ?? release.title} />
         <div className="side-note left-note">
           <span>01 / Origin</span>
           <i />
