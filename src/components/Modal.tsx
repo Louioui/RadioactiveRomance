@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 export function Modal({
   title,
@@ -10,10 +10,19 @@ export function Modal({
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
+  // useLayoutEffect: its cleanup runs while the dialog is still in the DOM,
+  // and we hand focus back to whatever opened it (WCAG 2.4.3 focus order)
+  useLayoutEffect(() => {
     const el = ref.current;
+    const trigger =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     el?.showModal();
-    return () => el?.close();
+    return () => {
+      if (el?.open) el.close();
+      if (trigger?.isConnected) trigger.focus();
+    };
   }, []);
   return (
     <dialog

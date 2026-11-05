@@ -33,4 +33,4 @@ The implementation is faithful to the concept's visual direction, with the suppl
 
 The native browser click mapping became unreliable after a viewport reset during QA, so the affected interactions were verified with documented browser CDP pointer events and keyboard activation. An isolated development hot-reload error occurred during code formatting; the completed source builds and reloads correctly.
 
-Demo limits: synthetic preview audio, free demo ZIP, and an artwork bonus; no live payments or paid-file entitlement backend. The original model is not rigged, so head tracking is vertex deformation. The 3D vendor bundle triggers Vite's generic 500 kB warning (about 291 kB gzipped); the optimized model is 4.49 MB.
+Demo limits: the player streams the two release MP3s (Standing Through It All, Bleeding Out Empty); the free demo ZIP contains artwork and a README only, plus an artwork bonus; no live payments or paid-file entitlement backend. The original model is not rigged, so head tracking is vertex deformation. The 3D vendor bundle triggers Vite's generic 500 kB warning (about 291 kB gzipped); the optimized model is 4.49 MB.

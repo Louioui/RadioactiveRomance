@@ -61,13 +61,14 @@ export function Overlays({
       <Modal title="The fine print." onClose={onClose}>
         <p>
           Radioactive Romance is a fictional band and this site is an
-          interactive demo. The included soundscape is a synthetic preview, not
-          a recording of “Candlelit Cage.”
+          interactive demo. The player streams the release tracks “Standing
+          Through It All” and “Bleeding Out Empty.”
         </p>
         <p>
           Demo downloads are free. No payment or purchase is made. The Origin
           MP3/WAV product describes the planned release; the demo package
-          contains a preview WAV and artwork only.
+          contains the Shattered Canvas artwork and a short README only. No
+          audio files are included in it.
         </p>
         <p>
           Artwork and audio are provided for personal preview. Commercial

@@ -78,11 +78,7 @@ function Doll(props: InteractiveDollProps) {
   const pulse = useMemo(() => ({ value: 0.5 }), []);
   const broken = useMemo(() => ({ value: 0 }), []);
   const beat = useMemo(() => ({ value: 0 }), []);
-  const heartParts = useRef<{
-    geometry: THREE.BufferGeometry;
-    map: THREE.Texture | null;
-    normalMap: THREE.Texture | null;
-  } | null>(null);
+
   const glow = useMemo(() => ({ value: 0.6 }), []);
   const onset = useRef({
     prev: new Float32Array(1024),
@@ -91,12 +87,13 @@ function Doll(props: InteractiveDollProps) {
     since: 1,
     burst: 0,
     count: 0,
+    primed: false,
     // smoothed copies of the beat for body motion (the heart stays punchy)
     g1: 0,
     g2: 0,
     side: 0,
   });
-  const model = useMemo(() => {
+  const { model, heart } = useMemo(() => {
     scene.updateMatrixWorld(true);
     const copy = new THREE.Group();
     const box = new THREE.Box3().setFromObject(scene);
@@ -128,7 +125,7 @@ function Doll(props: InteractiveDollProps) {
     CAVITY.set(hc.x, hc.y, hc.z - hs.z * 0.35);
     CAVITY_SIZE.set(hs.x * 0.5, hs.y * 0.5, hs.z * 0.85);
     const heartMaterial = hm.material as THREE.MeshStandardMaterial;
-    heartParts.current = {
+    const heart = {
       geometry: heartGeometry,
       map: heartMaterial.map,
       normalMap: heartMaterial.normalMap,
@@ -217,11 +214,12 @@ function Doll(props: InteractiveDollProps) {
       };
       child.material = material;
     });
-    return copy;
+    return { model: copy, heart };
   }, [scene, heartGltf, tracking, roll, breath, pulse, broken]);
   useEffect(() => {
     props.onReady();
     return () => {
+      heart.geometry.dispose();
       model.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           child.geometry.dispose();
@@ -229,7 +227,7 @@ function Doll(props: InteractiveDollProps) {
         }
       });
     };
-  }, [model, props.onReady]);
+  }, [model, heart, props.onReady]);
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.05),
       t = state.clock.elapsedTime;
@@ -250,25 +248,31 @@ function Doll(props: InteractiveDollProps) {
       for (let i = lo; i <= hi; i++) {
         const v = Math.max(0, (bins[i] + 100) / 100); // dB -> 0..1
         level += v;
-        flux += Math.max(0, v - o.prev[i]);
+        if (o.primed) flux += Math.max(0, v - o.prev[i]);
         o.prev[i] = v;
       }
       const n = hi - lo + 1;
       level /= n;
       flux /= n;
       energy = level;
-      // adaptive threshold: mean + 1.5σ of the last ~1.5 s of flux
-      o.mean = THREE.MathUtils.damp(o.mean, flux, 1.5, dt);
-      const dev = (flux - o.mean) ** 2;
-      o.varc = THREE.MathUtils.damp(o.varc, dev, 1.5, dt);
-      const threshold = o.mean + 1.5 * Math.sqrt(o.varc) + 0.004;
-      if (flux > threshold && o.since > 0.13) {
-        o.burst = Math.min(1, 0.65 + (flux - threshold) * 12);
-        o.since = 0;
-        o.count++;
+      if (!o.primed) {
+        // first frame after (re)starting only records a baseline, so resuming
+        // playback doesn't count the whole band level as one giant kick
+        o.primed = true;
+      } else {
+        // adaptive threshold: mean + 1.5σ of the last ~1.5 s of flux
+        o.mean = THREE.MathUtils.damp(o.mean, flux, 1.5, dt);
+        const dev = (flux - o.mean) ** 2;
+        o.varc = THREE.MathUtils.damp(o.varc, dev, 1.5, dt);
+        const threshold = o.mean + 1.5 * Math.sqrt(o.varc) + 0.004;
+        if (flux > threshold && o.since > 0.13) {
+          o.burst = Math.min(1, 0.65 + (flux - threshold) * 12);
+          o.since = 0;
+          o.count++;
+        }
       }
     } else {
-      o.prev.fill(0);
+      o.primed = false;
     }
     audio.bass = THREE.MathUtils.damp(audio.bass, energy, 12, dt);
     o.burst *= Math.exp(-dt * 9);
@@ -278,7 +282,10 @@ function Doll(props: InteractiveDollProps) {
       Math.exp(-((phase - 0.05) ** 2) / 0.002) +
       0.6 * Math.exp(-((phase - 0.22) ** 2) / 0.002);
     const idle = props.reducedMotion ? 0 : props.playing ? 0 : lubDub;
-    beat.value = Math.min(1, Math.max(o.burst, idle * 0.7));
+    // reduced motion: keep a gentle, slow glow instead of per-kick flashes
+    beat.value = props.reducedMotion
+      ? THREE.MathUtils.damp(beat.value, Math.min(0.25, audio.bass * 0.3), 2, dt)
+      : Math.min(1, Math.max(o.burst, idle * 0.7));
     glow.value = props.secretUnlocked ? 0 : 0.35 + beat.value * 1.4;
     pulse.value = 0.35 + beat.value * 1.3;
     broken.value = props.secretUnlocked ? 1 : 0;
@@ -422,12 +429,12 @@ function Doll(props: InteractiveDollProps) {
           distance={1.2}
           decay={2}
         />
-        {heartParts.current && (
+        {(
           <group ref={heartGroup} position={HEART_POS}>
             <AnatomicalHeart
-              geometry={heartParts.current.geometry}
-              map={heartParts.current.map}
-              normalMap={heartParts.current.normalMap}
+              geometry={heart.geometry}
+              map={heart.map}
+              normalMap={heart.normalMap}
               beat={beat}
               glow={glow}
               visible={!props.secretUnlocked}
