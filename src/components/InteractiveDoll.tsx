@@ -91,6 +91,10 @@ function Doll(props: InteractiveDollProps) {
     since: 1,
     burst: 0,
     count: 0,
+    // smoothed copies of the beat for body motion (the heart stays punchy)
+    g1: 0,
+    g2: 0,
+    side: 0,
   });
   const model = useMemo(() => {
     scene.updateMatrixWorld(true);
@@ -286,6 +290,20 @@ function Doll(props: InteractiveDollProps) {
       cavityLight.current.intensity = props.secretUnlocked
         ? 0.25
         : 0.4 + beat.value * 3;
+    // ---- smooth groove: two cascaded easings turn the sharp kick envelope
+    // into a rounded swell, so the body flows with the beat instead of snapping
+    {
+      const o2 = onset.current;
+      const target = props.playing && !props.reducedMotion ? beat.value : 0;
+      o2.g1 = THREE.MathUtils.damp(o2.g1, target, 14, dt);
+      o2.g2 = THREE.MathUtils.damp(o2.g2, o2.g1, 9, dt);
+      o2.side = THREE.MathUtils.damp(
+        o2.side,
+        o2.count % 2 ? 1 : -1,
+        3.5,
+        dt,
+      );
+    }
     // ---- idle life: small, slow, layered movements (no scrolling needed)
     const still = props.reducedMotion;
     const sigh = Math.pow(Math.max(0, Math.sin(t * 0.21)), 24); // rare deep breath
@@ -302,7 +320,7 @@ function Doll(props: InteractiveDollProps) {
       ? 0
       : Math.sin(t * 0.37) * 0.035 +
         sigh * 0.06 +
-        (props.playing ? -beat.value * 0.17 : 0);
+        -onset.current.g2 * 0.2;
     tracking.value.x = THREE.MathUtils.damp(
       tracking.value.x,
       (still ? 0 : state.pointer.x * 0.16) + idleYaw,
@@ -312,13 +330,13 @@ function Doll(props: InteractiveDollProps) {
     tracking.value.y = THREE.MathUtils.damp(
       tracking.value.y,
       (still ? 0 : -state.pointer.y * 0.09) + idlePitch,
-      props.playing ? 10 : 4,
+      7,
       dt,
     );
     // the head rests heavy on its hand, tilting side to side
     // on the music the head also snaps to alternating sides with each kick
-    const side = onset.current.count % 2 ? 1 : -1;
-    const groove = props.playing && !still ? beat.value : 0;
+    const side = onset.current.side;
+    const groove = onset.current.g2;
     roll.value = still
       ? 0
       : Math.sin(t * 0.43) * 0.05 +
