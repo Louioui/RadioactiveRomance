@@ -90,6 +90,7 @@ function Doll(props: InteractiveDollProps) {
     varc: 0,
     since: 1,
     burst: 0,
+    count: 0,
   });
   const model = useMemo(() => {
     scene.updateMatrixWorld(true);
@@ -260,6 +261,7 @@ function Doll(props: InteractiveDollProps) {
       if (flux > threshold && o.since > 0.13) {
         o.burst = Math.min(1, 0.65 + (flux - threshold) * 12);
         o.since = 0;
+        o.count++;
       }
     } else {
       o.prev.fill(0);
@@ -300,7 +302,7 @@ function Doll(props: InteractiveDollProps) {
       ? 0
       : Math.sin(t * 0.37) * 0.035 +
         sigh * 0.06 +
-        (props.playing ? -beat.value * 0.06 : 0);
+        (props.playing ? -beat.value * 0.17 : 0);
     tracking.value.x = THREE.MathUtils.damp(
       tracking.value.x,
       (still ? 0 : state.pointer.x * 0.16) + idleYaw,
@@ -314,14 +316,24 @@ function Doll(props: InteractiveDollProps) {
       dt,
     );
     // the head rests heavy on its hand, tilting side to side
+    // on the music the head also snaps to alternating sides with each kick
+    const side = onset.current.count % 2 ? 1 : -1;
+    const groove = props.playing && !still ? beat.value : 0;
     roll.value = still
       ? 0
-      : Math.sin(t * 0.43) * 0.05 + Math.sin(t * 0.17) * 0.03 - sigh * 0.04;
+      : Math.sin(t * 0.43) * 0.05 +
+        Math.sin(t * 0.17) * 0.03 -
+        sigh * 0.04 +
+        side * groove * 0.07;
     if (group.current && !still) {
-      group.current.position.y = Math.sin(t * 0.8) * 0.02 + sigh * 0.02;
+      // body bounces down and leans in on every kick
+      group.current.position.y =
+        Math.sin(t * 0.8) * 0.02 + sigh * 0.02 - groove * 0.055;
       group.current.rotation.y = Math.sin(t * 0.19) * 0.09;
-      group.current.rotation.z = Math.sin(t * 0.47) * 0.012;
-      group.current.rotation.x = Math.sin(t * 0.31) * 0.01;
+      group.current.rotation.z =
+        Math.sin(t * 0.47) * 0.012 + side * groove * 0.018;
+      group.current.rotation.x = Math.sin(t * 0.31) * 0.01 + groove * 0.045;
+      group.current.scale.setScalar(1.14 * (1 + groove * 0.012));
     }
     // keep the detached heart inside the breathing chest
     if (heartGroup.current) {
