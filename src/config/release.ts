@@ -26,6 +26,11 @@ export const release = {
     { title: "Tearing Through the Frame", audioUrl: "/assets/Tearing_Through_the_Frame.mp3" },
     { title: "The Beautiful Waste", audioUrl: "/assets/The_Beautiful_Waste.mp3" },
     { title: "Stitches and Bone", audioUrl: "/assets/Stitches_and_Bone.mp3" },
+    { title: "Screaming Through The Suture", audioUrl: "/assets/Screaming_Through_The_Suture.mp3" },
+    { title: "Gods of the Small", audioUrl: "/assets/Gods_of_the_Small.mp3" },
+    { title: "The Crowded Room", audioUrl: "/assets/The_Crowded_Room.mp3" },
+    { title: "Ribbon of Black", audioUrl: "/assets/Ribbon_of_Black.mp3" },
+    { title: "Hate Everything", audioUrl: "/assets/Hate_everything.mp3" },
   ],
   // not in the track list: plays only when the heart is pressed open
   secretTrack: { title: "Why Not Us", audioUrl: "/assets/Why_not_us.mp3" },
