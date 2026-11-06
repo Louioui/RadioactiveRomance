@@ -40,6 +40,10 @@ export default function App() {
   useEffect(() => {
     if (unlocked) document.body.style.cursor = "";
   }, [unlocked]);
+  // pressing the heart open plays the hidden track
+  useEffect(() => {
+    if (unlocked) engine.playSecret();
+  }, [unlocked, engine.playSecret]);
   // after the heart shatters, wait, then play the burst in reverse and
   // hand the heart back so the ritual can start over
   const [rewinding, setRewinding] = useState(false);

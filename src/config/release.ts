@@ -24,7 +24,11 @@ export const release = {
     { title: "Where The Wars Begin", audioUrl: "/assets/Where_The_Wars_Begin.mp3" },
     { title: "Where You Used To Be", audioUrl: "/assets/Where_You_Used_To_Be.mp3" },
     { title: "Tearing Through the Frame", audioUrl: "/assets/Tearing_Through_the_Frame.mp3" },
+    { title: "The Beautiful Waste", audioUrl: "/assets/The_Beautiful_Waste.mp3" },
+    { title: "Stitches and Bone", audioUrl: "/assets/Stitches_and_Bone.mp3" },
   ],
+  // not in the track list: plays only when the heart is pressed open
+  secretTrack: { title: "Why Not Us", audioUrl: "/assets/Why_not_us.mp3" },
   isPreview: false,
   checkoutUrl: import.meta.env.VITE_CHECKOUT_URL || "",
   secretUrl:

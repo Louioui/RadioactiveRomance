@@ -27,6 +27,8 @@ export function useAudioEngine() {
   const [muted, setMuted] = useState(false);
   const [error, setError] = useState("");
   const [trackIndex, setTrackIndex] = useState(0);
+  // true while the hidden secret track is playing instead of a list track
+  const [secret, setSecret] = useState(false);
   useEffect(() => {
     const element = new Audio(release.audioUrl);
     element.crossOrigin = "anonymous";
@@ -73,9 +75,10 @@ export function useAudioEngine() {
     async (index: number) => {
       const next = release.tracks[index];
       const element = audio.current;
-      if (!next || !element || index === trackIndex) return;
+      if (!next || !element || (index === trackIndex && !secret)) return;
       const wasPlaying = !element.paused;
       setTrackIndex(index);
+      setSecret(false);
       element.src = next.audioUrl;
       element.currentTime = 0;
       setTime(0);
@@ -88,8 +91,21 @@ export function useAudioEngine() {
         }
       }
     },
-    [trackIndex],
+    [trackIndex, secret],
   );
+  // swap in the hidden track and start it from the top
+  const playSecret = useCallback(() => {
+    const element = audio.current;
+    if (!element) return;
+    setSecret(true);
+    element.src = release.secretTrack.audioUrl;
+    element.currentTime = 0;
+    setTime(0);
+    setDuration(0);
+    element.play().catch(() => {
+      setError("Audio could not start. Press play to retry.");
+    });
+  }, []);
   useEffect(() => {
     if (gain.current && context.current)
       gain.current.gain.setTargetAtTime(
@@ -152,8 +168,9 @@ export function useAudioEngine() {
     setVolume,
     setMuted,
     trackIndex,
-    track: release.tracks[trackIndex],
+    track: secret ? release.secretTrack : release.tracks[trackIndex],
     selectTrack,
+    playSecret,
   };
 }
 export type AudioEngine = ReturnType<typeof useAudioEngine>;
