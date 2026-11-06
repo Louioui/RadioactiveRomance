@@ -12,6 +12,9 @@ import { useAudioEngine } from "./audio/useAudioEngine";
 import { ReleaseTitle } from "./components/ReleaseTitle";
 import { release } from "./config/release";
 
+const HEART_REBUILD_DELAY_MS = 45_000;
+const HEART_REWIND_MS = 3_000;
+
 export default function App() {
   const engine = useAudioEngine();
   const [overlay, setOverlay] = useState<Overlay>(null);
@@ -37,6 +40,27 @@ export default function App() {
   useEffect(() => {
     if (unlocked) document.body.style.cursor = "";
   }, [unlocked]);
+  // after the heart shatters, wait, then play the burst in reverse and
+  // hand the heart back so the ritual can start over
+  const [rewinding, setRewinding] = useState(false);
+  useEffect(() => {
+    if (!unlocked) return;
+    let done: number | undefined;
+    const wait = window.setTimeout(() => {
+      setRewinding(true);
+      done = window.setTimeout(
+        () => {
+          setRewinding(false);
+          setClicks(0);
+        },
+        reducedMotion ? 0 : HEART_REWIND_MS,
+      );
+    }, HEART_REBUILD_DELAY_MS);
+    return () => {
+      window.clearTimeout(wait);
+      window.clearTimeout(done);
+    };
+  }, [unlocked, reducedMotion]);
   const songTitle = engine.track?.title ?? release.title;
   useEffect(() => {
     document.title = `${songTitle} — Radioactive Romance`;
@@ -94,6 +118,8 @@ export default function App() {
             playing={engine.playing}
             hoveredStoreTier={hovered ? "origin" : "none"}
             secretUnlocked={unlocked}
+            rewinding={rewinding}
+            rewindSeconds={HEART_REWIND_MS / 1000}
             onHeartClick={heartClick}
             reducedMotion={reducedMotion}
             onReady={onReady}

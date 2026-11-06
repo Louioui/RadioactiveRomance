@@ -18,6 +18,9 @@ export interface InteractiveDollProps {
   playing: boolean;
   hoveredStoreTier?: "none" | "origin" | "matrix" | "aura";
   secretUnlocked: boolean;
+  /** Plays the shatter backwards so the heart rebuilds itself. */
+  rewinding?: boolean;
+  rewindSeconds?: number;
   onHeartClick: () => void;
   reducedMotion: boolean;
   onReady: () => void;
@@ -453,17 +456,24 @@ function Doll(props: InteractiveDollProps) {
         />
         <Fragments
           active={props.secretUnlocked}
+          rewinding={!!props.rewinding}
+          rewindSeconds={props.rewindSeconds ?? 3}
           reducedMotion={props.reducedMotion}
         />
       </group>
     </>
   );
 }
+const FLESH_LIFE = 2.6;
 function Fragments({
   active,
+  rewinding,
+  rewindSeconds,
   reducedMotion,
 }: {
   active: boolean;
+  rewinding: boolean;
+  rewindSeconds: number;
   reducedMotion: boolean;
 }) {
   const flesh = useRef<THREE.InstancedMesh>(null);
@@ -494,8 +504,16 @@ function Fragments({
     return { flesh: make(FLESH, 1.3), sparks: make(SPARKS, 2.4) };
   }, []);
   useFrame((_, dt) => {
-    if (!active || reducedMotion) return;
-    elapsed.current += Math.min(dt, 0.05);
+    if (!active || reducedMotion) {
+      elapsed.current = 0;
+      return;
+    }
+    const step = Math.min(dt, 0.05);
+    // forward: burst out and settle at the end of the fragments' life.
+    // rewind: run the same clock backwards so every piece flies home.
+    elapsed.current = rewinding
+      ? Math.max(0, elapsed.current - step * (FLESH_LIFE / rewindSeconds))
+      : Math.min(FLESH_LIFE, elapsed.current + step);
     const t = elapsed.current;
     if (flash.current) flash.current.intensity = 18 * Math.exp(-t * 4);
     const write = (
@@ -506,7 +524,7 @@ function Fragments({
       base: number,
     ) => {
       if (!mesh) return;
-      mesh.visible = t < life;
+      mesh.visible = t > 0 && t < life;
       for (let i = 0; i < list.length; i++) {
         const s = list[i];
         dummy.position.copy(HEART_POS).addScaledVector(s.dir, t);
@@ -518,7 +536,7 @@ function Fragments({
       }
       mesh.instanceMatrix.needsUpdate = true;
     };
-    write(flesh.current, seeds.flesh, 2.6, 0.9, 0.035);
+    write(flesh.current, seeds.flesh, FLESH_LIFE, 0.9, 0.035);
     write(sparks.current, seeds.sparks, 1.8, 0.25, 0.014);
   });
   const on = active && !reducedMotion;
