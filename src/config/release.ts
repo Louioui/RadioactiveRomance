@@ -31,6 +31,13 @@ export const release = {
     { title: "The Crowded Room", audioUrl: "/assets/The_Crowded_Room.mp3" },
     { title: "Ribbon of Black", audioUrl: "/assets/Ribbon_of_Black.mp3" },
     { title: "Hate Everything", audioUrl: "/assets/Hate_everything.mp3" },
+    { title: "Master of My Pains", audioUrl: "/assets/Master_of_My_Pains.mp3" },
+    { title: "Marrow and Blade", audioUrl: "/assets/Marrow_and_Blade.mp3" },
+    { title: "Empire of Bone", audioUrl: "/assets/Empire_Of_Bone.mp3" },
+    { title: "End of Days Bell", audioUrl: "/assets/End_Of_Days_Bell.mp3" },
+    { title: "Break the Frame", audioUrl: "/assets/Break_the_Frame.mp3" },
+    { title: "Throne of Dirt and Stone", audioUrl: "/assets/Throne_of_Dirt_and_Stone.mp3" },
+    { title: "The Great Unmaking", audioUrl: "/assets/The_Great_Unmaking.mp3" },
   ],
   // not in the track list: plays only when the heart is pressed open
   secretTrack: { title: "Why Not Us", audioUrl: "/assets/Why_not_us.mp3" },
